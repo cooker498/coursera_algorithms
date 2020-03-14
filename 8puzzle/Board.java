@@ -10,13 +10,14 @@ import java.util.Iterator;
 
 public class Board {
 
-    public int[][] tiles;
+    private int[][] tiles;
 
-    private int n;
+    private final int n;
 
     private int zerocol;
 
     private int zerorow;
+
 
     // create a board from an n-by-n array of tiles,
     // where tiles[row][col] = tile at (row, col)
@@ -60,6 +61,9 @@ public class Board {
         for (int i = 0; i < n; i++) {
             for (int j = 0; j < n; j++) {
                 correctnum = (correctnum + 1) % n2;
+                if (i == n - 1 && j == n - 1) {
+                    continue;
+                }
                 if (tiles[i][j] != correctnum) {
                     hammingDistance++;
                 }
@@ -77,12 +81,11 @@ public class Board {
                 int correctrow;
                 int correctcol;
                 if (findNum == 0) {
-                    correctrow = n - 1;
-                    correctcol = n - 1;
+                    continue;
                 }
                 else {
-                    correctrow = findNum / n;
-                    correctcol = findNum % n - 1;
+                    correctrow = (findNum - 1) / n;
+                    correctcol = (findNum - 1) % n;
                 }
                 manhattanDistance = manhattanDistance + Math.abs(correctrow - i) + Math
                         .abs(correctcol - j);
@@ -105,8 +108,8 @@ public class Board {
         if (this.dimension() != that.dimension()) {
             return false;
         }
-        for (int i = 1; i <= n; i++) {
-            for (int j = 1; j <= n; j++) {
+        for (int i = 0; i < n; i++) {
+            for (int j = 0; j < n; j++) {
                 if (this.tiles[i][j] != that.tiles[i][j]) {
                     return false;
                 }
@@ -119,24 +122,24 @@ public class Board {
     public Iterable<Board> neighbors() {
         Stack<Board> boardStack = new Stack<>();
         if (zerorow == 0) {
-            boardStack.push(moveup());
+            boardStack.push(new Board(tiles).moveup());
         }
         else if (zerorow == n - 1) {
-            boardStack.push(movedown());
+            boardStack.push(new Board(tiles).movedown());
         }
         else {
-            boardStack.push(moveup());
-            boardStack.push(movedown());
+            boardStack.push(new Board(tiles).moveup());
+            boardStack.push(new Board(tiles).movedown());
         }
         if (zerocol == 0) {
-            boardStack.push(moveleft());
+            boardStack.push(new Board(tiles).moveleft());
         }
         else if (zerocol == n - 1) {
-            boardStack.push(moveright());
+            boardStack.push(new Board(tiles).moveright());
         }
         else {
-            boardStack.push(moveleft());
-            boardStack.push(moveright());
+            boardStack.push(new Board(tiles).moveleft());
+            boardStack.push(new Board(tiles).moveright());
         }
         return boardStack;
     }
@@ -158,36 +161,32 @@ public class Board {
     }
 
     private Board moveup() {
-        Board board = new Board(tiles);
-        board.tiles[zerorow][zerocol] = board.tiles[zerorow + 1][zerocol];
-        board.tiles[zerorow + 1][zerocol] = 0;
-        return board;
+        tiles[zerorow][zerocol] = tiles[zerorow + 1][zerocol];
+        tiles[++zerorow][zerocol] = 0;
+        return this;
     }
 
     private Board movedown() {
-        Board board = new Board(tiles);
-        board.tiles[zerorow][zerocol] = board.tiles[zerorow - 1][zerocol];
-        board.tiles[zerorow - 1][zerocol] = 0;
-        return board;
+        tiles[zerorow][zerocol] = tiles[zerorow - 1][zerocol];
+        tiles[--zerorow][zerocol] = 0;
+        return this;
     }
 
     private Board moveleft() {
-        Board board = new Board(tiles);
-        board.tiles[zerorow][zerocol] = board.tiles[zerorow][zerocol + 1];
-        board.tiles[zerorow][zerocol + 1] = 0;
-        return board;
+        tiles[zerorow][zerocol] = tiles[zerorow][zerocol + 1];
+        tiles[zerorow][++zerocol] = 0;
+        return this;
     }
 
     private Board moveright() {
-        Board board = new Board(tiles);
-        board.tiles[zerorow][zerocol] = board.tiles[zerorow][zerocol - 1];
-        board.tiles[zerorow][zerocol - 1] = 0;
-        return board;
+        tiles[zerorow][zerocol] = tiles[zerorow][zerocol - 1];
+        tiles[zerorow][--zerocol] = 0;
+        return this;
     }
 
     // unit testing (not graded)
     public static void main(String[] args) {
-        int[][] tiles = { { 0, 1, 3 }, { 4, 2, 5 }, { 7, 8, 6 } };
+        int[][] tiles = { { 1, 0, 3 }, { 4, 2, 5 }, { 7, 8, 6 } };
         System.out.println("test construct");
         Board board = new Board(tiles);
         System.out.println(board);
